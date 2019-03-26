@@ -64,8 +64,9 @@ options =
         "Show help"
     ]
 
-getAlgorithm :: (Integral a, Num b) => a -> Maybe ([b] -> b)
-getAlgorithm 1 = Just problem_1
+getAlgorithm :: (Integral a, Num b) => a -> Maybe b
+getAlgorithm 1 = Just $ fromIntegral problem_1
+-- getAlgorithm 2 = Just 11.1
 getAlgorithm x = Nothing
 
 main = do
@@ -82,22 +83,21 @@ main = do
                 , optOutput = output
                 , optProblem = problem} = opts
 
-    -- let maybeAlgorithm = getAlgorithm problem
-
     if problem <= 0 then do
       hPutStrLn stderr "No valid problem number given"
-      exitFailure
-    else return ()
+      exitFailure else
+      return ()
 
-    let algorithm = case getAlgorithm problem of Nothing -> error "Not solved"
-                                                 Just a -> a
+    let result = getAlgorithm problem
 
+    case result of Nothing -> do
+                     hPutStrLn stderr $ "Problem " ++ show problem ++ " not solved yet"
+                     exitFailure
+                   Just a -> hPutStrLn stdout $ "Solution to problem " ++
+                     show problem ++ " is: " ++ show a
 
-    let algorithmArgs = map (read :: String -> Integer) nonOptions
-    print algorithmArgs
-    let result = algorithm algorithmArgs
-    print result
-    return 0
+    exitSuccess
 
-problem_1 :: (Num a) => [a] -> a
-problem_1 _ = 11
+problem_1 :: Integer
+problem_1 = sum [0,3..limit-1] + sum [0,5..limit-1] - sum [0,15..limit-1] where
+  limit = 1000
