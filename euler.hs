@@ -10,6 +10,8 @@ import Data.List
 import Data.Char
 import Data.Maybe
 
+import Constants
+
 data Options = Options  { optVerbose    :: Bool
                         , optInput      :: IO String
                         , optOutput     :: String -> IO ()
@@ -66,7 +68,7 @@ options =
 
 getAlgorithm :: (Integral a, Num b) => a -> Maybe b
 getAlgorithm 1 = Just $ fromIntegral problem_1
-getAlgorithm 2 = Just 11
+getAlgorithm 2 = Just $ fromIntegral problem_2
 getAlgorithm x = Nothing
 
 main = do
@@ -104,3 +106,17 @@ problem_1 = sum3And5Multiples 1000
 sum3And5Multiples :: Integer -> Integer
 sum3And5Multiples limit =
   sum [0,3..limit-1] +  sum [0,5..limit-1] - sum [0,15..limit-1]
+
+
+problem_2 :: Integer
+problem_2 = evenFibSum 4000000
+
+evenFibSum :: Integer -> Integer
+evenFibSum limit = sum $ map nthFib [3,6..limitIndex] where
+  limitIndex = fibIndex $ fromIntegral limit
+
+nthFib :: Integer -> Integer
+nthFib n = floor $ phi^n / sqrt 5 + 1/2
+
+fibIndex :: Double -> Integer
+fibIndex x = floor $ logBase phi $ x * sqrt 5 + 1/2
