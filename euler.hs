@@ -66,7 +66,7 @@ options =
 
 getAlgorithm :: (Integral a, Num b) => a -> Maybe b
 getAlgorithm 1 = Just $ fromIntegral problem_1
--- getAlgorithm 2 = Just 11.1
+getAlgorithm 2 = Just 11
 getAlgorithm x = Nothing
 
 main = do
@@ -99,5 +99,8 @@ main = do
     exitSuccess
 
 problem_1 :: Integer
-problem_1 = sum [0,3..limit-1] + sum [0,5..limit-1] - sum [0,15..limit-1] where
-  limit = 1000
+problem_1 = sum3And5Multiples 1000
+
+sum3And5Multiples :: Integer -> Integer
+sum3And5Multiples limit =
+  sum [0,3..limit-1] +  sum [0,5..limit-1] - sum [0,15..limit-1]
