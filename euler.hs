@@ -69,6 +69,7 @@ options =
 getAlgorithm :: (Integral a, Num b) => a -> Maybe b
 getAlgorithm 1 = Just $ fromIntegral problem_1
 getAlgorithm 2 = Just $ fromIntegral problem_2
+getAlgorithm 3 = Just $ fromIntegral problem_3
 getAlgorithm x = Nothing
 
 main = do
@@ -120,3 +121,25 @@ nthFib n = floor $ phi^n / sqrt 5 + 1/2
 
 fibIndex :: Double -> Integer
 fibIndex x = floor $ logBase phi $ x * sqrt 5 + 1/2
+
+ackerman :: Integer -> Integer -> Integer
+ackerman 0 y = y + 1
+ackerman x 0 = ackerman (x - 1) 1
+ackerman x y = ackerman (x - 1) $ ackerman x (y - 1)
+
+smallestFactor :: Integer -> Integer
+smallestFactor n = head $ filter modCheck [2..]
+  where modCheck x = n `mod` x == 0
+
+primeFactorization :: Integer -> [Integer]
+primeFactorization n
+  | p == n    = [n]
+  | otherwise = p : (primeFactorization $ n `div` p)
+  where p = smallestFactor n
+
+largestFactor :: Integer -> Integer
+largestFactor n = last $ primeFactorization n
+
+problem_3 :: Integer
+problem_3 = largestFactor 600851475143
+
