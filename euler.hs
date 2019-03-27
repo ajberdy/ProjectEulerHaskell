@@ -108,7 +108,6 @@ sum3And5Multiples :: Integer -> Integer
 sum3And5Multiples limit =
   sum [0,3..limit-1] +  sum [0,5..limit-1] - sum [0,15..limit-1]
 
-
 problem_2 :: Integer
 problem_2 = evenFibSum 4000000
 
@@ -142,4 +141,12 @@ largestFactor n = last $ primeFactorization n
 
 problem_3 :: Integer
 problem_3 = largestFactor 600851475143
+
+isPalindrome :: (Show a) => a -> Bool
+isPalindrome x = xStr == reverse xStr
+  where xStr = show x
+
+problem_4 :: Integer
+problem_4 = maximum palindromes
+  where palindromes = filter isPalindrome [a * b | a <- [100..999], b <- [100..a]]
 
