@@ -72,6 +72,8 @@ getAlgorithm 2 = Just $ fromIntegral problem_2
 getAlgorithm 3 = Just $ fromIntegral problem_3
 getAlgorithm 4 = Just $ fromIntegral problem_4
 getAlgorithm 5 = Just $ fromIntegral problem_5
+getAlgorithm 6 = Just $ fromIntegral problem_6
+getAlgorithm 7 = Just $ fromIntegral problem_7
 getAlgorithm x = Nothing
 
 main = do
@@ -123,11 +125,6 @@ nthFib n = floor $ phi^n / sqrt 5 + 1/2
 fibIndex :: Double -> Integer
 fibIndex x = floor $ logBase phi $ x * sqrt 5 + 1/2
 
-ackerman :: Integer -> Integer -> Integer
-ackerman 0 y = y + 1
-ackerman x 0 = ackerman (x - 1) 1
-ackerman x y = ackerman (x - 1) $ ackerman x (y - 1)
-
 goesInto :: Integer -> Integer -> Bool
 goesInto n p = n `mod` p == 0
 
@@ -154,38 +151,17 @@ problem_4 :: Integer
 problem_4 = maximum palindromes
   where palindromes = filter isPalindrome [a * b | a <- [100..999], b <- [100..a]]
 
-goesIntoPower :: Integer -> Integer -> Integer
-goesIntoPower n x =
-  if goesInto n x then
-    1 + goesIntoPower (n `div` x) x
-  else 0
-
-primeFactorization :: Integer -> [(Integer, Integer)]
-primeFactorization n
-  | n == 1    = []
-  | p == n    = [(n, 1)]
-  | otherwise = (p, highestPower) : (primeFactorization $ n `div` (p^highestPower))
-  where p = smallestFactor n
-        highestPower = goesIntoPower n p
-
-leastCommonMultiple :: Integer -> Integer -> Integer
-leastCommonMultiple a b =
-  foldl factorIn 1 lCMFactors
-  where
-    factorIn x (p, power) = x * p^power
-    lCMFactors = findLCMFactors (primeFactorization a) (primeFactorization b)
-
-findLCMFactors :: [(Integer, Integer)] -> [(Integer, Integer)] -> [(Integer, Integer)]
-findLCMFactors aFactors [] = aFactors
-findLCMFactors [] bFactors = bFactors
-findLCMFactors ((aFactor, aPower):aRest) ((bFactor, bPower):bRest)
-  | aFactor < bFactor =
-    (aFactor, aPower) : (findLCMFactors aRest ((bFactor, bPower):bRest))
-  | aFactor == bFactor =
-    (aFactor, max aPower bPower) : (findLCMFactors aRest bRest)
-  | otherwise =
-    (bFactor, bPower) : (findLCMFactors ((aFactor, aPower):aRest) bRest)
-
 problem_5 :: Integer
-problem_5 = foldl1 leastCommonMultiple [2..20]
+problem_5 = foldl1 lcm [2..20]
 
+problem_6 :: Integer
+problem_6 = (sum [1..100])^2 - foldl addSquare 0 [1..100]
+  where addSquare x y = x + y^2
+
+isPrime :: Integer -> Bool
+isPrime n = not $ any (goesInto n) [2..bound]
+  where bound = floor $ sqrt $ fromIntegral n
+
+problem_7 :: Integer
+problem_7 = primes !! (10001 - 1)
+  where primes = filter isPrime [2..]
