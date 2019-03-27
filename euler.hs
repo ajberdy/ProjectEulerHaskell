@@ -9,6 +9,7 @@ import System.IO
 import Data.List
 import Data.Char
 import Data.Maybe
+import qualified Data.Map as Map
 
 import Constants
 
@@ -27,35 +28,11 @@ startOptions = Options  { optVerbose    = False
 
 options :: [ OptDescr (Options -> IO Options) ]
 options =
-    [ Option "i" ["input"]
-        (ReqArg
-            (\arg opt -> return opt { optInput = readFile arg })
-            "FILE")
-        "Input file"
-
-    , Option "o" ["output"]
-        (ReqArg
-            (\arg opt -> return opt { optOutput = writeFile arg })
-            "FILE")
-        "Output file"
-
-    , Option "p" ["problem"]
+    [ Option "p" ["problem"]
         (ReqArg
             (\arg opt -> return opt { optProblem = read arg :: Integer })
             "NUMBER")
         "Problem number"
-
-    , Option "v" ["verbose"]
-        (NoArg
-            (\opt -> return opt { optVerbose = True }))
-        "Enable verbose messages"
-
-    , Option "V" ["version"]
-        (NoArg
-            (\_ -> do
-                hPutStrLn stderr "Version 0.01"
-                exitWith ExitSuccess))
-        "Print version"
 
     , Option "h" ["help"]
         (NoArg
@@ -66,15 +43,14 @@ options =
         "Show help"
     ]
 
-getAlgorithm :: (Integral a, Num b) => a -> Maybe b
-getAlgorithm 1 = Just $ fromIntegral problem_1
-getAlgorithm 2 = Just $ fromIntegral problem_2
-getAlgorithm 3 = Just $ fromIntegral problem_3
-getAlgorithm 4 = Just $ fromIntegral problem_4
-getAlgorithm 5 = Just $ fromIntegral problem_5
-getAlgorithm 6 = Just $ fromIntegral problem_6
-getAlgorithm 7 = Just $ fromIntegral problem_7
-getAlgorithm x = Nothing
+data Problem = Problem { problemName       :: String
+                       , problemNumber     :: Integer
+                       , problemAlgorithm  :: Integer
+                       }
+
+problemMap :: Map.Map Integer Problem
+problemMap = Map.fromList $ keyed
+  where keyed = zip (map problemNumber problems) problems
 
 main = do
     args <- getArgs
@@ -88,20 +64,22 @@ main = do
     let Options { optVerbose = verbose
                 , optInput = input
                 , optOutput = output
-                , optProblem = problem} = opts
+                , optProblem = problemNumber} = opts
 
-    if problem <= 0 then do
+    if problemNumber <= 0 then do
       hPutStrLn stderr "No valid problem number given"
       exitFailure else
       return ()
 
-    let result = getAlgorithm problem
+    let problem = Map.lookup problemNumber problemMap
 
-    case result of Nothing -> do
-                     hPutStrLn stderr $ "Problem " ++ show problem ++ " not solved yet"
-                     exitFailure
-                   Just a -> hPutStrLn stdout $ "Solution to problem " ++
-                     show problem ++ " is: " ++ show a
+    case problem of Nothing -> do
+                      hPutStrLn stderr $ "Problem " ++ show problemNumber ++ " not solved yet"
+                      exitFailure
+                    Just p -> do
+                      let result = problemAlgorithm p
+                      hPutStrLn stdout $ "Solution to problem " ++
+                        show problemNumber ++ " is: " ++ show result
 
     exitSuccess
 
@@ -165,3 +143,35 @@ isPrime n = not $ any (goesInto n) [2..bound]
 problem_7 :: Integer
 problem_7 = primes !! (10001 - 1)
   where primes = filter isPrime [2..]
+
+
+problems :: [Problem]
+problems = [ Problem { problemName      = "Multiples of 3 and 5"
+                     , problemNumber    = 1
+                     , problemAlgorithm = problem_1
+                     }
+           , Problem { problemName      = "Even Fibonacci numbers"
+                     , problemNumber    = 2
+                     , problemAlgorithm = problem_2
+                     }
+           , Problem { problemName      = "Largest prime factor"
+                     , problemNumber    = 3
+                     , problemAlgorithm = problem_3
+                     }
+           , Problem { problemName      = ""
+                     , problemNumber    = 4
+                     , problemAlgorithm = problem_4
+                     }
+           , Problem { problemName      = "Even Fibonacci numbers"
+                     , problemNumber    = 5
+                     , problemAlgorithm = problem_5
+                     }
+           , Problem { problemName      = "Even Fibonacci numbers"
+                     , problemNumber    = 6
+                     , problemAlgorithm = problem_6
+                     }
+           , Problem { problemName      = "Even Fibonacci numbers"
+                     , problemNumber    = 7
+                     , problemAlgorithm = problem_7
+                     }
+           ]
