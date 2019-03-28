@@ -182,6 +182,22 @@ problem_9 = a' * b' * c'
 problem_10 :: Integer
 problem_10 = sum $ takeWhile (< 2000000) primes
 
+
+-- problem_11 :: Integer
+problem_11 = maximum $ map getProduct indices
+  where
+    indices = foldl1 union [ [[(a, b), (a + 1, b), (a + 2, b), (a + 3, b)] |
+                              a <- [0..16], b <- [0..19]]
+                           , [[(a, b), (a, b + 1), (a, b + 2), (a, b + 3)] |
+                              a <- [0..19], b <- [0..16]]
+                           , [[(a, b), (a + 1, b + 1), (a + 2, b + 2), (a + 3, b + 3)] |
+                              a <- [0..16], b <- [0..16]]
+                           , [[(a, b + 3), (a + 1, b + 2), (a + 2, b + 1), (a + 3, b)] |
+                              a <- [0..16], b <- [0..16]]
+                           ]
+    getProduct ixList = product $ map extract ixList
+    extract (i, j) = (read::String->Integer) $ (words problem11Input) !! (20 * i + j)
+
 problems :: [Problem]
 problems = [ Problem { problemName      = "Multiples of 3 and 5"
                      , problemNumber    = 1
@@ -223,6 +239,11 @@ problems = [ Problem { problemName      = "Multiples of 3 and 5"
                      , problemNumber    = 10
                      , problemAlgorithm = problem_10
                      }
+           , Problem { problemName      = "Largest product in a grid"
+                     , problemNumber    = 11
+                     , problemAlgorithm = problem_11
+                     }
+
            ]
 
 solutions :: Map.Map Integer Integer
@@ -236,4 +257,5 @@ solutions = Map.fromList [ (1, 233168)
                          , (8, 23514624000)
                          , (9, 31875000)
                          , (10, 142913828922)
+                         , (11, 70600674)
                          ]
