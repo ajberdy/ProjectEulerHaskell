@@ -13,18 +13,10 @@ import qualified Data.Map as Map
 
 import Constants
 
-data Options = Options  { optVerbose    :: Bool
-                        , optInput      :: IO String
-                        , optOutput     :: String -> IO ()
-                        , optProblem    :: Integer
-                        }
+data Options = Options  { optProblem    :: Integer }
 
 startOptions :: Options
-startOptions = Options  { optVerbose    = False
-                        , optInput      = getContents
-                        , optOutput     = putStr
-                        , optProblem    = -1
-                        }
+startOptions = Options  { optProblem    = -1 }
 
 options :: [ OptDescr (Options -> IO Options) ]
 options =
@@ -41,6 +33,24 @@ options =
                 hPutStrLn stderr (usageInfo prg options)
                 exitWith ExitSuccess))
         "Show help"
+
+    , Option "t" ["test"]
+        (NoArg
+            (\_ -> do
+                hPutStrLn stderr "Testing Solutions"
+                let computed = map problemAlgorithm problems
+                let incorrect = filter (not.correct) problems
+                      where correct p = computed == solution
+                              where computed = problemAlgorithm p
+                                    solution = case Map.lookup (problemNumber p) solutions of
+                                      Nothing -> 0
+                                      Just x -> x
+                if not $ null incorrect then
+                  hPutStrLn stderr "Tests Failed"
+                  else
+                  hPutStrLn stderr "Tests Passed"
+                exitWith ExitSuccess))
+        "Test solutions"
     ]
 
 data Problem = Problem { problemName       :: String
@@ -61,15 +71,12 @@ main = do
     -- Here we thread startOptions through all supplied option actions
     opts <- foldl (>>=) (return startOptions) actions
 
-    let Options { optVerbose = verbose
-                , optInput = input
-                , optOutput = output
-                , optProblem = problemNumber} = opts
+    let Options { optProblem = problemNumber} = opts
 
     if problemNumber <= 0 then do
       hPutStrLn stderr "No valid problem number given"
-      exitFailure else
-      return ()
+      exitFailure
+      else return ()
 
     let problem = Map.lookup problemNumber problemMap
 
@@ -107,7 +114,8 @@ goesInto :: Integer -> Integer -> Bool
 goesInto n p = n `mod` p == 0
 
 smallestFactor :: Integer -> Integer
-smallestFactor n = head $ filter (goesInto n) [2..]
+smallestFactor n = head $ filter (goesInto n) [2..bound] ++ [n]
+  where bound = floor $ sqrt $ fromIntegral n
 
 primeFactorizationList :: Integer -> [Integer]
 primeFactorizationList n
@@ -137,8 +145,7 @@ problem_6 = (sum [1..100])^2 - foldl addSquare 0 [1..100]
   where addSquare x y = x + y^2
 
 isPrime :: Integer -> Bool
-isPrime n = not $ any (goesInto n) [2..bound]
-  where bound = floor $ sqrt $ fromIntegral n
+isPrime n = n == smallestFactor n
 
 problem_7 :: Integer
 problem_7 = primes !! (10001 - 1)
@@ -175,3 +182,13 @@ problems = [ Problem { problemName      = "Multiples of 3 and 5"
                      , problemAlgorithm = problem_7
                      }
            ]
+
+solutions :: Map.Map Integer Integer
+solutions = Map.fromList [ (1, 233168)
+                         , (2, 4613732)
+                         , (3, 6857)
+                         , (4, 906609)
+                         , (5, 232792560)
+                         , (6, 25164150)
+                         , (7, 104743)
+                         ]
