@@ -148,12 +148,10 @@ problem_5 :: Integer
 problem_5 = foldl1 lcm [2..20]
 
 problem_6 :: Integer
-problem_6 = (sum [1..100])^2 - foldl addSquare 0 [1..100]
-  where addSquare x y = x + y^2
+problem_6 = (sum [1..100])^2 - (sum $ map (^2) [1..100])
 
 problem_7 :: Integer
 problem_7 = primes !! (10001 - 1)
-  where primes = filter isPrime [2..]
 
 problem_8 :: Integer
 problem_8 = maximum $ map thirteenProduct [0..(length problem8Input) - 13]
