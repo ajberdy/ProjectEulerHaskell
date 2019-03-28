@@ -151,6 +151,11 @@ problem_7 :: Integer
 problem_7 = primes !! (10001 - 1)
   where primes = filter isPrime [2..]
 
+problem_8 :: Integer
+problem_8 = maximum $ map thirteenProduct [0..(length problem8Input) - 13]
+  where thirteenProduct ix = toInteger $ product $ map extract [ix..ix + 12]
+        extract idx = digitToInt $ problem8Input !! idx
+
 
 problems :: [Problem]
 problems = [ Problem { problemName      = "Multiples of 3 and 5"
@@ -181,6 +186,10 @@ problems = [ Problem { problemName      = "Multiples of 3 and 5"
                      , problemNumber    = 7
                      , problemAlgorithm = problem_7
                      }
+           , Problem { problemName      = "Largest product in a series"
+                     , problemNumber    = 8
+                     , problemAlgorithm = problem_8
+                     }
            ]
 
 solutions :: Map.Map Integer Integer
@@ -191,4 +200,5 @@ solutions = Map.fromList [ (1, 233168)
                          , (5, 232792560)
                          , (6, 25164150)
                          , (7, 104743)
+                         , (8, 23514624000)
                          ]
