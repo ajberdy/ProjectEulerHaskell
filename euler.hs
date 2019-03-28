@@ -113,18 +113,25 @@ fibIndex x = floor $ logBase phi $ x * sqrt 5 + 1/2
 goesInto :: Integer -> Integer -> Bool
 goesInto n p = n `mod` p == 0
 
+primes :: [Integer]
+primes = 2 : (filter isPrime [3,5..])
+
 smallestFactor :: Integer -> Integer
 smallestFactor n = head $ filter (goesInto n) [2..bound] ++ [n]
   where bound = floor $ sqrt $ fromIntegral n
 
-primeFactorizationList :: Integer -> [Integer]
-primeFactorizationList n
-  | p == n    = [n]
-  | otherwise = p : (primeFactorizationList $ n `div` p)
-  where p = smallestFactor n
+isPrime :: Integer -> Bool
+isPrime n = primeFactors n == [n]
+
+primeFactors :: Integer -> [Integer]
+primeFactors n = factor n primes
+  where factor n (p:ps)
+          | p*p > n      = [n]
+          | goesInto n p = p : factor (n `div` p) (p:ps)
+          | otherwise    = factor n ps
 
 largestFactor :: Integer -> Integer
-largestFactor n = last $ primeFactorizationList n
+largestFactor n = last $ primeFactors n
 
 problem_3 :: Integer
 problem_3 = largestFactor 600851475143
@@ -144,9 +151,6 @@ problem_6 :: Integer
 problem_6 = (sum [1..100])^2 - foldl addSquare 0 [1..100]
   where addSquare x y = x + y^2
 
-isPrime :: Integer -> Bool
-isPrime n = n == smallestFactor n
-
 problem_7 :: Integer
 problem_7 = primes !! (10001 - 1)
   where primes = filter isPrime [2..]
@@ -162,6 +166,8 @@ problem_9 = a' * b' * c'
                              a <- [1..1000], b <- [1..a], c <- [1000 - a - b],
                              a^2 + b^2 == c^2]
 
+problem_10 :: Integer
+problem_10 = sum $ takeWhile (< 2000000) primes
 
 problems :: [Problem]
 problems = [ Problem { problemName      = "Multiples of 3 and 5"
@@ -200,6 +206,10 @@ problems = [ Problem { problemName      = "Multiples of 3 and 5"
                      , problemNumber    = 9
                      , problemAlgorithm = problem_9
                      }
+           , Problem { problemName      = "Summation of primes"
+                     , problemNumber    = 10
+                     , problemAlgorithm = problem_10
+                     }
            ]
 
 solutions :: Map.Map Integer Integer
@@ -212,4 +222,5 @@ solutions = Map.fromList [ (1, 233168)
                          , (7, 104743)
                          , (8, 23514624000)
                          , (9, 31875000)
+                         , (10, 142913828922)
                          ]
