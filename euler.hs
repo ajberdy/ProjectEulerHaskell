@@ -156,6 +156,12 @@ problem_8 = maximum $ map thirteenProduct [0..(length problem8Input) - 13]
   where thirteenProduct ix = toInteger $ product $ map extract [ix..ix + 12]
         extract idx = digitToInt $ problem8Input !! idx
 
+problem_9 :: Integer
+problem_9 = a' * b' * c'
+  where (a', b', c') = head [(a, b, c) |
+                             a <- [1..1000], b <- [1..a], c <- [1000 - a - b],
+                             a^2 + b^2 == c^2]
+
 
 problems :: [Problem]
 problems = [ Problem { problemName      = "Multiples of 3 and 5"
@@ -170,7 +176,7 @@ problems = [ Problem { problemName      = "Multiples of 3 and 5"
                      , problemNumber    = 3
                      , problemAlgorithm = problem_3
                      }
-           , Problem { problemName      = ""
+           , Problem { problemName      = "Largest palindrome product"
                      , problemNumber    = 4
                      , problemAlgorithm = problem_4
                      }
@@ -178,17 +184,21 @@ problems = [ Problem { problemName      = "Multiples of 3 and 5"
                      , problemNumber    = 5
                      , problemAlgorithm = problem_5
                      }
-           , Problem { problemName      = "Even Fibonacci numbers"
+           , Problem { problemName      = "Smallest multiple"
                      , problemNumber    = 6
                      , problemAlgorithm = problem_6
                      }
-           , Problem { problemName      = "Even Fibonacci numbers"
+           , Problem { problemName      = "Sum square difference"
                      , problemNumber    = 7
                      , problemAlgorithm = problem_7
                      }
            , Problem { problemName      = "Largest product in a series"
                      , problemNumber    = 8
                      , problemAlgorithm = problem_8
+                     }
+           , Problem { problemName      = "Special Pythagorean triplet"
+                     , problemNumber    = 9
+                     , problemAlgorithm = problem_9
                      }
            ]
 
@@ -201,4 +211,5 @@ solutions = Map.fromList [ (1, 233168)
                          , (6, 25164150)
                          , (7, 104743)
                          , (8, 23514624000)
+                         , (9, 31875000)
                          ]
