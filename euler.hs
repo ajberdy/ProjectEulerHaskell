@@ -37,18 +37,7 @@ options =
     , Option "t" ["test"]
         (NoArg
             (\_ -> do
-                hPutStrLn stderr "Testing Solutions"
-                let computed = map problemAlgorithm problems
-                let incorrect = filter (not.correct) problems
-                      where correct p = computed == solution
-                              where computed = problemAlgorithm p
-                                    solution = case Map.lookup (problemNumber p) solutions of
-                                      Nothing -> 0
-                                      Just x -> x
-                if not $ null incorrect then
-                  hPutStrLn stderr "Tests Failed"
-                  else
-                  hPutStrLn stderr "Tests Passed"
+                mapM_ ((hPutStrLn stderr).testProblem) problems
                 exitWith ExitSuccess))
         "Test solutions"
     ]
@@ -61,6 +50,22 @@ data Problem = Problem { problemName       :: String
 problemMap :: Map.Map Integer Problem
 problemMap = Map.fromList $ keyed
   where keyed = zip (map problemNumber problems) problems
+
+testProblem :: Problem -> String
+testProblem problem =
+  if computed == solution then
+    "Problem " ++ show pNumber ++ " is " ++ green ++ "correct" ++ defaultColor
+    ++ ": " ++ show computed
+    else
+    "Problem " ++ show pNumber ++ " is " ++ red ++ "incorrect" ++ defaultColor
+    ++ ": " ++ show computed
+    ++ " (should be " ++ show solution ++ ")"
+  where
+    computed = problemAlgorithm problem
+    solution = case Map.lookup (problemNumber problem) solutions of
+      Nothing -> 0
+      Just x -> x
+    pNumber = problemNumber problem
 
 main = do
     args <- getArgs
@@ -90,12 +95,14 @@ main = do
 
     exitSuccess
 
+
 problem_1 :: Integer
 problem_1 = sum3And5Multiples 1000
 
 sum3And5Multiples :: Integer -> Integer
 sum3And5Multiples limit =
   sum [0,3..limit-1] +  sum [0,5..limit-1] - sum [0,15..limit-1]
+
 
 problem_2 :: Integer
 problem_2 = evenFibSum 4000000
@@ -109,6 +116,10 @@ nthFib n = floor $ phi^n / sqrt 5 + 1/2
 
 fibIndex :: Double -> Integer
 fibIndex x = floor $ logBase phi $ x * sqrt 5 + 1/2
+
+
+problem_3 :: Integer
+problem_3 = largestFactor 600851475143
 
 goesInto :: Integer -> Integer -> Bool
 goesInto n p = n `mod` p == 0
@@ -133,36 +144,40 @@ primeFactors n = factor n primes
 largestFactor :: Integer -> Integer
 largestFactor n = last $ primeFactors n
 
-problem_3 :: Integer
-problem_3 = largestFactor 600851475143
-
-isPalindrome :: (Show a) => a -> Bool
-isPalindrome x = xStr == reverse xStr
-  where xStr = show x
 
 problem_4 :: Integer
 problem_4 = maximum palindromes
   where palindromes = filter isPalindrome [a * b | a <- [100..999], b <- [100..a]]
 
+isPalindrome :: (Show a) => a -> Bool
+isPalindrome x = xStr == reverse xStr
+  where xStr = show x
+
+
 problem_5 :: Integer
 problem_5 = foldl1 lcm [2..20]
+
 
 problem_6 :: Integer
 problem_6 = (sum [1..100])^2 - (sum $ map (^2) [1..100])
 
+
 problem_7 :: Integer
 problem_7 = primes !! (10001 - 1)
+
 
 problem_8 :: Integer
 problem_8 = maximum $ map thirteenProduct [0..(length problem8Input) - 13]
   where thirteenProduct ix = toInteger $ product $ map extract [ix..ix + 12]
         extract idx = digitToInt $ problem8Input !! idx
 
+
 problem_9 :: Integer
 problem_9 = a' * b' * c'
   where (a', b', c') = head [(a, b, c) |
                              a <- [1..1000], b <- [1..a], c <- [1000 - a - b],
                              a^2 + b^2 == c^2]
+
 
 problem_10 :: Integer
 problem_10 = sum $ takeWhile (< 2000000) primes
