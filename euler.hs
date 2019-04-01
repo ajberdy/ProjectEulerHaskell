@@ -9,6 +9,7 @@ import System.IO
 import Data.List
 import Data.Char
 import Data.Maybe
+import Data.Ord
 import qualified Data.Map as Map
 
 import Constants
@@ -224,10 +225,26 @@ factorial n = n * factorial (n - 1)
 factors :: Integer -> [Integer]
 factors n = filter (goesInto n) [1..n]
 
+
 problem_13 :: Integer
 problem_13 = (read::String->Integer) $ take 10 sumString
   where
     sumString = show $ sum $ map (read::String->Integer) $ words problem13Input
+
+problem_14 :: Integer
+problem_14 = snd . foldl1 max $ map (\x -> (collatzLength x, x)) [1..1000000]
+
+memoize :: (Integer -> a) -> (Integer -> a)
+memoize f = (map (f . toInteger) [0..] !!) . fromIntegral
+
+collatzLength :: Integer -> Integer
+collatzLength =
+  toInteger . length . takeWhile (/= 1) . iterate collatzStep
+
+collatzStep :: Integer -> Integer
+collatzStep x
+  | even x    = x `div` 2
+  | otherwise = 3*x + 1
 
 problems :: [Problem]
 problems = [ Problem { problemName      = "Multiples of 3 and 5"
@@ -282,6 +299,10 @@ problems = [ Problem { problemName      = "Multiples of 3 and 5"
                      , problemNumber    = 13
                      , problemAlgorithm = problem_13
                      }
+           , Problem { problemName      = "Longest Collatz sequence"
+                     , problemNumber    = 14
+                     , problemAlgorithm = problem_14
+                     }
            ]
 
 solutions :: Map.Map Integer Integer
@@ -298,4 +319,7 @@ solutions = Map.fromList [ (1, 233168)
                          , (11, 70600674)
                          , (12, 76576500)
                          , (13, 5537376230)
+                         , (14, 837799)
                          ]
+
+--  LocalWords:  fibMemo
