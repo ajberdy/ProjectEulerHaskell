@@ -183,7 +183,7 @@ problem_10 :: Integer
 problem_10 = sum $ takeWhile (< 2000000) primes
 
 
--- problem_11 :: Integer
+problem_11 :: Integer
 problem_11 = maximum $ map getProduct indices
   where
     indices = foldl1 union [ [[(a, b), (a + 1, b), (a + 2, b), (a + 3, b)] |
@@ -197,6 +197,37 @@ problem_11 = maximum $ map getProduct indices
                            ]
     getProduct ixList = product $ map extract ixList
     extract (i, j) = (read::String->Integer) $ (words problem11Input) !! (20 * i + j)
+
+
+problem_12 :: Integer
+problem_12 = head $ filter highlyDivisible triangles
+  where
+    highlyDivisible n = (numFactors n) > 500
+    triangles = map triangle [1..]
+      where
+        triangle n = (n^2 + n) `div` 2
+
+primeFactorsMap :: Integer -> Map.Map Integer Integer
+primeFactorsMap n =
+  Map.fromListWith (+) (zip factors [1,1..])
+  where
+    factors = primeFactors n
+
+numFactors :: Integer -> Integer
+numFactors n =
+  product $ map (+1) (Map.elems $ primeFactorsMap n)
+  -- (factorial numPrimeFactors) `div` (product $ map factorial primePowers)
+  -- where
+  --   pFMap = primeFactorsMap n
+  --   numPrimeFactors = Map.foldl (+) 0 pFMap
+  --   primePowers = Map.elems pFMap
+
+factorial :: Integer -> Integer
+factorial 1 = 1
+factorial n = n * factorial (n - 1)
+
+factors :: Integer -> [Integer]
+factors n = filter (goesInto n) [1..n]
 
 problems :: [Problem]
 problems = [ Problem { problemName      = "Multiples of 3 and 5"
@@ -243,7 +274,10 @@ problems = [ Problem { problemName      = "Multiples of 3 and 5"
                      , problemNumber    = 11
                      , problemAlgorithm = problem_11
                      }
-
+           , Problem { problemName      = "Highly divisible triangular number"
+                     , problemNumber    = 12
+                     , problemAlgorithm = problem_12
+                     }
            ]
 
 solutions :: Map.Map Integer Integer
@@ -258,4 +292,5 @@ solutions = Map.fromList [ (1, 233168)
                          , (9, 31875000)
                          , (10, 142913828922)
                          , (11, 70600674)
+                         , (12, 76576500)
                          ]
