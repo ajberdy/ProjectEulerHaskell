@@ -246,6 +246,13 @@ collatzStep x
   | even x    = x `div` 2
   | otherwise = 3*x + 1
 
+
+problem_15 :: Integer
+problem_15 = binom 40 20
+
+binom :: Integer -> Integer -> Integer
+binom n k = product [n - k + 1 .. n] `div` product [1..k]
+
 problems :: [Problem]
 problems = [ Problem { problemName      = "Multiples of 3 and 5"
                      , problemNumber    = 1
@@ -303,6 +310,10 @@ problems = [ Problem { problemName      = "Multiples of 3 and 5"
                      , problemNumber    = 14
                      , problemAlgorithm = problem_14
                      }
+           , Problem { problemName      = "Lattice paths"
+                     , problemNumber    = 15
+                     , problemAlgorithm = problem_15
+                     }
            ]
 
 solutions :: Map.Map Integer Integer
@@ -320,6 +331,7 @@ solutions = Map.fromList [ (1, 233168)
                          , (12, 76576500)
                          , (13, 5537376230)
                          , (14, 837799)
+                         , (15, 137846528820)
                          ]
 
 --  LocalWords:  fibMemo
