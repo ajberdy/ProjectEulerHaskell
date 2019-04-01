@@ -253,6 +253,10 @@ problem_15 = binom 40 20
 binom :: Integer -> Integer -> Integer
 binom n k = product [n - k + 1 .. n] `div` product [1..k]
 
+
+problem_16 :: Integer
+problem_16 = toInteger . sum . map digitToInt $ show $ 2 ^ 1000
+
 problems :: [Problem]
 problems = [ Problem { problemName      = "Multiples of 3 and 5"
                      , problemNumber    = 1
@@ -314,6 +318,10 @@ problems = [ Problem { problemName      = "Multiples of 3 and 5"
                      , problemNumber    = 15
                      , problemAlgorithm = problem_15
                      }
+           , Problem { problemName      = "Power digit sum"
+                     , problemNumber    = 16
+                     , problemAlgorithm = problem_16
+                     }
            ]
 
 solutions :: Map.Map Integer Integer
@@ -332,6 +340,7 @@ solutions = Map.fromList [ (1, 233168)
                          , (13, 5537376230)
                          , (14, 837799)
                          , (15, 137846528820)
+                         , (16, 1366)
                          ]
 
 --  LocalWords:  fibMemo
