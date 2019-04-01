@@ -216,11 +216,6 @@ primeFactorsMap n =
 numFactors :: Integer -> Integer
 numFactors n =
   product $ map (+1) (Map.elems $ primeFactorsMap n)
-  -- (factorial numPrimeFactors) `div` (product $ map factorial primePowers)
-  -- where
-  --   pFMap = primeFactorsMap n
-  --   numPrimeFactors = Map.foldl (+) 0 pFMap
-  --   primePowers = Map.elems pFMap
 
 factorial :: Integer -> Integer
 factorial 1 = 1
@@ -228,6 +223,11 @@ factorial n = n * factorial (n - 1)
 
 factors :: Integer -> [Integer]
 factors n = filter (goesInto n) [1..n]
+
+problem_13 :: Integer
+problem_13 = (read::String->Integer) $ take 10 sumString
+  where
+    sumString = show $ sum $ map (read::String->Integer) $ words problem13Input
 
 problems :: [Problem]
 problems = [ Problem { problemName      = "Multiples of 3 and 5"
@@ -278,6 +278,10 @@ problems = [ Problem { problemName      = "Multiples of 3 and 5"
                      , problemNumber    = 12
                      , problemAlgorithm = problem_12
                      }
+           , Problem { problemName      = "Large sum"
+                     , problemNumber    = 13
+                     , problemAlgorithm = problem_13
+                     }
            ]
 
 solutions :: Map.Map Integer Integer
@@ -293,4 +297,5 @@ solutions = Map.fromList [ (1, 233168)
                          , (10, 142913828922)
                          , (11, 70600674)
                          , (12, 76576500)
+                         , (13, 5537376230)
                          ]
