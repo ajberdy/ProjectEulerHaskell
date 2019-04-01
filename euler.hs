@@ -257,6 +257,94 @@ binom n k = product [n - k + 1 .. n] `div` product [1..k]
 problem_16 :: Integer
 problem_16 = toInteger . sum . map digitToInt $ show $ 2 ^ 1000
 
+
+problem_17 :: Integer
+problem_17 = sum $ map numLetters [1..1000]
+  where
+    numLetters x = toInteger $ length $ filter isLetter $ show $ numberWord x
+
+data NumberWord x = Thousand | HundredsTensOnes x
+  | HundredsTens x | HundredsOnes x | Hundreds x | TensOnes x | Tens x | Ones x
+
+
+instance (Integral x) => Show (NumberWord x) where
+  show (Ones x) = case x of
+                    1 -> "one"
+                    2 -> "two"
+                    3 -> "three"
+                    4 -> "four"
+                    5 -> "five"
+                    6 -> "six"
+                    7 -> "seven"
+                    8 -> "eight"
+                    9 -> "nine"
+  show (Tens x) = case x of
+                    10 -> "ten"
+                    20 -> "twenty"
+                    30 -> "thirty"
+                    40 -> "forty"
+                    50 -> "fifty"
+                    60 -> "sixty"
+                    70 -> "seventy"
+                    80 -> "eighty"
+                    90 -> "ninety"
+  show (TensOnes x) = case x of
+                       11 -> "eleven"
+                       12 -> "twelve"
+                       13 -> "thirteen"
+                       14 -> "fourteen"
+                       15 -> "fifteen"
+                       16 -> "sixteen"
+                       17 -> "seventeen"
+                       18 -> "eighteen"
+                       19 -> "nineteen"
+                       x -> let o = x `mod` 10
+                                t = x - o
+                            in
+                              show (Tens t) ++ "-" ++ show (Ones o)
+  show (Hundreds x) = show (Ones $ x `div` 100) ++ " hundred"
+  show (HundredsTens x) = let t = x `mod` 100
+                              h = x - t
+                          in
+                            show (Hundreds h) ++ " and " ++ show (Tens t)
+  show (HundredsOnes x) = let o = x `mod` 100
+                              h = x - o
+                          in
+                            show (Hundreds h) ++ " and " ++ show (Ones o)
+  show (HundredsTensOnes x) = let o = x `mod` 10
+                                  t = x `mod` 100 - o
+                                  h = x - t - o
+                              in
+                                show (Hundreds h) ++ " and " ++ show (TensOnes $ t + o)
+  show (Thousand) = "one thousand"
+
+numberWord :: Integer -> NumberWord Integer
+numberWord 1000 = Thousand
+numberWord x = let o = x `mod` 10
+                   t = x `mod` 100 - o
+                   h = x - t - o
+               in
+                 if h > 0 then
+                   if t > 0 then
+                     if o > 0 then
+                       HundredsTensOnes x
+                     else
+                       HundredsTens x
+                   else
+                     if o > 0 then
+                       HundredsOnes x
+                     else
+                       Hundreds x
+                 else
+                   if t > 0 then
+                     if o > 0 then
+                       TensOnes x
+                     else
+                       Tens x
+                   else
+                     Ones x
+
+
 problems :: [Problem]
 problems = [ Problem { problemName      = "Multiples of 3 and 5"
                      , problemNumber    = 1
@@ -322,6 +410,10 @@ problems = [ Problem { problemName      = "Multiples of 3 and 5"
                      , problemNumber    = 16
                      , problemAlgorithm = problem_16
                      }
+           , Problem { problemName      = "Number letter counts"
+                     , problemNumber    = 17
+                     , problemAlgorithm = problem_17
+                     }
            ]
 
 solutions :: Map.Map Integer Integer
@@ -341,6 +433,7 @@ solutions = Map.fromList [ (1, 233168)
                          , (14, 837799)
                          , (15, 137846528820)
                          , (16, 1366)
+                         , (17, 21124)
                          ]
 
 --  LocalWords:  fibMemo
