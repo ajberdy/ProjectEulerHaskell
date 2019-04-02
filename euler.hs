@@ -470,6 +470,11 @@ weekDay (Date m d y) = toEnum ((dayNum + startDayNum) `mod` 7)::Weekday
     dayNum = fromIntegral $ centuryToDateDays $ Date m d y
     startDayNum = fromEnum Monday
 
+
+problem_20 :: Integer
+problem_20 =
+  toInteger $ sum $ map digitToInt $ show $ factorial 100
+
 problems :: [Problem]
 problems = [ Problem { problemName      = "Multiples of 3 and 5"
                      , problemNumber    = 1
@@ -546,6 +551,10 @@ problems = [ Problem { problemName      = "Multiples of 3 and 5"
                      , problemNumber    = 19
                      , problemAlgorithm = problem_19
                      }
+           , Problem { problemName      = "Factorial digit sum"
+                     , problemNumber    = 20
+                     , problemAlgorithm = problem_20
+                     }
            ]
 
 solutions :: Map.Map Integer Integer
@@ -568,6 +577,7 @@ solutions = Map.fromList [ (1, 233168)
                          , (17, 21124)
                          , (18, 1074)
                          , (19, 171)
+                         , (20, 648)
                          ]
 
 --  LocalWords:  fibMemo maxBound
