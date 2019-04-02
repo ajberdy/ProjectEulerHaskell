@@ -122,7 +122,7 @@ fibIndex x = floor $ logBase phi $ x * sqrt 5 + 1/2
 problem_3 :: Integer
 problem_3 = largestFactor 600851475143
 
-goesInto :: Integer -> Integer -> Bool
+goesInto :: (Integral a) => a -> a -> Bool
 goesInto n p = n `mod` p == 0
 
 primes :: [Integer]
@@ -381,6 +381,95 @@ maxPathSum r i = if r == length pyramid - 1 then
     leftChild = maxPathSum (r + 1) i
     rightChild = maxPathSum (r + 1) (i + 1)
 
+
+problem_19 :: Integer
+problem_19 = toInteger $ length $ filter (isSunday)
+  [Date Jan 1 1901, Date Feb 1 1901 .. Date Dec 31 2000]
+  where
+    isSunday d = weekDay d == Sunday
+
+data Weekday = Monday | Tuesday | Wednesday | Thursday | Friday
+  | Saturday | Sunday deriving (Eq, Ord, Show, Read, Bounded, Enum)
+
+data Month = Jan | Feb | Mar | Apr | May  | Jun
+  | Jul | Aug | Sep | Oct | Nov | Dec deriving (Eq, Enum, Show, Ord, Bounded)
+
+data Date m d y = Date Month Int Int deriving (Show, Eq, Bounded)
+
+instance Ord (Date m d y) where
+  (<=) (Date m d y) (Date m' d' y')
+    | y /= y'   = y < y'
+    | m /= m'   = m < m'
+    | otherwise = d <= d'
+
+instance Enum (Date m d y) where
+
+  toEnum x = numToDate (x + 1) (Date Jan 1 1900)
+    where numToDate x (Date m d y)
+            | x >= yearDays  = numToDate (x - yearDays) (Date m d (y + 1))
+            | x >= monthDays = numToDate (x - monthDays) (Date (succ m) d y)
+            | otherwise     = Date m x y
+            where y' = if (m > Feb) || (m == Feb && d == 29) then y + 1 else y
+                  yearDays  = daysInYear y'
+                  monthDays = daysInMonth m y
+
+  fromEnum (Date m d y) = centuryToDateDays (Date m d y)
+
+  enumFromThenTo (Date m0 d0 y0) (Date m1 d1 y1) (Date m' d' y') =
+    takeWhile (\d -> d < (Date m' d' y')) $ iterate nextDate (Date m0 d0 y0)
+    where
+      dm = fromEnum m1 - fromEnum m0
+      dd = fromEnum d1 - fromEnum d0
+      dy = fromEnum y1 - fromEnum y0
+      nextDate (Date m d y) =
+        if dd == 0 then
+          let
+            dNext = increment d dd
+            mNext = increment m $ if (dNext < d) /= (dd < 0) then
+                                    dm + signum dd else dm
+            yNext = increment y $ if (mNext < m) /= (dm < 0) then
+                                    dy + signum dm else dy
+          in
+            Date mNext dNext yNext
+        else
+          error "Not implemented"
+
+increment :: (Enum x, Bounded x, Eq x) => x -> Int -> x
+increment x dx = iterate next x !! dx
+  where
+    next x
+      | x == maxBound = minBound
+      | otherwise     = succ x
+
+daysInMonth :: (Integral a) => Month -> a -> a
+daysInMonth m y
+  | m `elem` [Jan, Mar, May, Jul, Aug, Oct, Dec] = 31
+  | m `elem` [Apr, Jun, Sep, Nov]                = 30
+  | m == Feb = if leapYear y then 29 else 28
+
+daysInYear :: (Integral a) => a -> a
+daysInYear y = if leapYear y then 366 else 365
+
+leapYear :: (Integral y) => y -> Bool
+leapYear y = (goesInto y 4 && not (goesInto y 100)) ||
+             (goesInto y 400)
+
+yearToDateDays :: (Date Month Int Int) -> Int
+yearToDateDays (Date m d y) =
+  sum (map (\x -> daysInMonth x y) months) + d - 1
+  where
+    months = if m == Jan then [] else [Jan .. pred m]
+
+centuryToDateDays :: (Date Month Int Int) -> Int
+centuryToDateDays (Date m d y) =
+  sum (map daysInYear [1900 .. y - 1]) + yearToDateDays (Date m d y)
+
+weekDay :: (Integral a) => (Date Month a a) -> Weekday
+weekDay (Date m d y) = toEnum ((dayNum + startDayNum) `mod` 7)::Weekday
+  where
+    dayNum = fromIntegral $ centuryToDateDays $ Date m d y
+    startDayNum = fromEnum Monday
+
 problems :: [Problem]
 problems = [ Problem { problemName      = "Multiples of 3 and 5"
                      , problemNumber    = 1
@@ -453,6 +542,10 @@ problems = [ Problem { problemName      = "Multiples of 3 and 5"
            , Problem { problemName      = "Maximum path sum I"
                      , problemNumber    = 18
                      , problemAlgorithm = problem_18}
+           , Problem { problemName      = "Counting Sundays"
+                     , problemNumber    = 19
+                     , problemAlgorithm = problem_19
+                     }
            ]
 
 solutions :: Map.Map Integer Integer
@@ -474,6 +567,7 @@ solutions = Map.fromList [ (1, 233168)
                          , (16, 1366)
                          , (17, 21124)
                          , (18, 1074)
+                         , (19, 171)
                          ]
 
---  LocalWords:  fibMemo
+--  LocalWords:  fibMemo maxBound
