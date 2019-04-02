@@ -345,6 +345,42 @@ numberWord x = let o = x `mod` 10
                      Ones x
 
 
+problem_18 :: Integer
+problem_18 = maxPathSum' 0 0
+
+memoize' :: (Int -> Int -> a) -> (Int -> Int -> a)
+memoize' f x y = ((map (map (\(a, b) -> f a b))
+                   [[(a, b) | b <- [0..a]] | a <- [0..]]) !! x !! y)
+
+maxPathSum' :: Int -> Int -> Integer
+maxPathSum' = memoize' maxPath
+  where
+    maxPath r i = if r == length pyramid - 1 then
+                    x
+                  else
+                    x + max leftChild rightChild
+      where
+        numList line = map (read::String->Integer) $ words $ line
+        pyramid = map numList (lines problem18Input)
+        -- _ = error $ show pyramid
+        x = pyramid !! r !! i
+        leftChild = maxPathSum' (r + 1) i
+        rightChild = maxPathSum' (r + 1) (i + 1)
+
+
+maxPathSum :: Int -> Int -> Integer
+maxPathSum r i = if r == length pyramid - 1 then
+                   x
+                 else
+                   x + max leftChild rightChild
+  where
+    numList line = map (read::String->Integer) $ words $ line
+    pyramid = map numList (lines problem18Input)
+    _ = error $ show pyramid
+    x = pyramid !! r !! i
+    leftChild = maxPathSum (r + 1) i
+    rightChild = maxPathSum (r + 1) (i + 1)
+
 problems :: [Problem]
 problems = [ Problem { problemName      = "Multiples of 3 and 5"
                      , problemNumber    = 1
@@ -414,6 +450,9 @@ problems = [ Problem { problemName      = "Multiples of 3 and 5"
                      , problemNumber    = 17
                      , problemAlgorithm = problem_17
                      }
+           , Problem { problemName      = "Maximum path sum I"
+                     , problemNumber    = 18
+                     , problemAlgorithm = problem_18}
            ]
 
 solutions :: Map.Map Integer Integer
@@ -434,6 +473,7 @@ solutions = Map.fromList [ (1, 233168)
                          , (15, 137846528820)
                          , (16, 1366)
                          , (17, 21124)
+                         , (18, 1074)
                          ]
 
 --  LocalWords:  fibMemo
