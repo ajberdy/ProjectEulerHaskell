@@ -1,4 +1,6 @@
 #!/usr/bin/env ghc
+{-# LANGUAGE GADTs #-}
+
 module Main (main) where
 
 import System.Console.GetOpt
@@ -14,7 +16,7 @@ import qualified Data.Map as Map
 
 import Constants
 
-data Options = Options  { optProblem    :: Integer }
+data Options = Options  { optProblem    :: Int }
 
 startOptions :: Options
 startOptions = Options  { optProblem    = -1 }
@@ -23,7 +25,7 @@ options :: [ OptDescr (Options -> IO Options) ]
 options =
     [ Option "p" ["problem"]
         (ReqArg
-            (\arg opt -> return opt { optProblem = read arg :: Integer })
+            (\arg opt -> return opt { optProblem = read arg :: Int })
             "NUMBER")
         "Problem number"
 
@@ -43,12 +45,12 @@ options =
         "Test solutions"
     ]
 
-data Problem = Problem { problemName       :: String
-                       , problemNumber     :: Integer
+data Problem = Problem { problemName :: String
+                       , problemNumber     :: Int
                        , problemAlgorithm  :: Integer
                        }
 
-problemMap :: Map.Map Integer Problem
+problemMap :: Map.Map Int Problem
 problemMap = Map.fromList $ keyed
   where keyed = zip (map problemNumber problems) problems
 
@@ -475,6 +477,29 @@ problem_20 :: Integer
 problem_20 =
   toInteger $ sum $ map digitToInt $ show $ factorial 100
 
+
+problem_21 :: Integer
+problem_21 = sum $ filter amicable [1..9999]
+
+amicable :: Integer -> Bool
+amicable n =
+  divisorSum dSum == n &&
+             dSum /= n
+  where dSum = divisorSum n
+
+divisorSum :: Integer -> Integer
+divisorSum = memoize divSum
+  where divSum n = sum $ properDivisors n
+
+properDivisors :: Integer -> [Integer]
+properDivisors n = filter (goesInto n) [1..n-1]
+
+repeated :: Ord a => [a] -> [a]
+repeated = map head
+           . filter (\x -> length x > 1)
+           . group
+           . sort
+
 problems :: [Problem]
 problems = [ Problem { problemName      = "Multiples of 3 and 5"
                      , problemNumber    = 1
@@ -555,9 +580,13 @@ problems = [ Problem { problemName      = "Multiples of 3 and 5"
                      , problemNumber    = 20
                      , problemAlgorithm = problem_20
                      }
+           , Problem { problemName      = "Amicable numbers"
+                     , problemNumber    = 21
+                     , problemAlgorithm = problem_21
+                     }
            ]
 
-solutions :: Map.Map Integer Integer
+solutions :: Map.Map Int Integer
 solutions = Map.fromList [ (1, 233168)
                          , (2, 4613732)
                          , (3, 6857)
@@ -578,6 +607,7 @@ solutions = Map.fromList [ (1, 233168)
                          , (18, 1074)
                          , (19, 171)
                          , (20, 648)
+                         , (21, 31626)
                          ]
 
 --  LocalWords:  fibMemo maxBound
